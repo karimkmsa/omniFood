@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="description"
+    content="Omnifood is an AI-powered food subscription that will make you eat healthy again, 365 days per year. It's tailored to your personal tastes and nutritional needs."
+  />
+  <!-- Always include this line of code!!! -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" href="img/favicon.png" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind v4 (browser build). No css/general.css or css/style.css needed anymore. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <style type="text/tailwindcss">
+    /* ---------- Design tokens ---------- */
+    @theme {
+      --font-sans: "Rubik", sans-serif;
+      --color-primary: #e67e22;
+      --color-primary-dark: #cf711f;
+      --color-primary-light: #eb984e;
+      --color-tint: #fdf2e9;
+      --color-tint-dark: #fae5d3;
+      --color-shade: #45260a;
+    }
+
+    /* ---------- Base ---------- */
+    @layer base {
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-sans);
+        line-height: 1;
+        font-weight: 400;
+        color: #555;
+        overflow-x: hidden;
+      }
+      /* Sticky header would otherwise cover anchor targets */
+      section[id] {
+        scroll-margin-top: 6rem;
+      }
+      :focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 0.5rem rgba(230, 125, 34, 0.5);
+      }
+      strong {
+        font-weight: 500;
+      }
+    }
+
+    /* ---------- Reusable components ---------- */
+    @layer components {
+      .heading-primary {
+        @apply mb-8 text-[34px] leading-[1.05] font-bold tracking-[-0.5px] text-[#333] sm:text-[44px] lg:text-[52px];
+      }
+      .heading-secondary {
+        @apply mb-12 text-[30px] leading-[1.2] font-bold tracking-[-0.5px] text-[#333] md:mb-24 md:text-[44px];
+      }
+      .heading-tertiary {
+        @apply mb-8 text-[26px] leading-[1.2] font-bold tracking-[-0.5px] text-[#333] md:text-[30px];
+      }
+      .subheading {
+        @apply mb-4 block text-base font-medium tracking-[0.75px] text-primary-dark uppercase;
+      }
+
+      .btn {
+        @apply inline-block cursor-pointer rounded-[9px] border-0 px-8 py-4 text-lg font-semibold no-underline transition-all duration-300 sm:text-xl;
+      }
+      .btn--full {
+        @apply bg-primary text-white hover:bg-primary-dark;
+      }
+      .btn--outline {
+        @apply bg-white text-[#555] hover:bg-tint hover:shadow-[inset_0_0_0_3px_#fff];
+      }
+      .btn--form {
+        @apply self-end bg-shade p-3 text-tint hover:bg-white hover:text-[#555];
+      }
+
+      .link {
+        @apply inline-block border-b border-current pb-0.5 text-primary no-underline transition-all duration-300 hover:border-transparent hover:text-primary-dark;
+      }
+
+      .list {
+        @apply flex list-none flex-col gap-4;
+      }
+      .list-item {
+        @apply flex items-center gap-4 text-lg leading-[1.2];
+      }
+      .list-icon {
+        @apply size-[30px] shrink-0 text-primary;
+      }
+
+      .tag {
+        @apply inline-block rounded-full px-2 py-1 text-xs font-semibold text-[#333] uppercase;
+      }
+
+      .field {
+        @apply w-full rounded-[9px] border-0 bg-tint p-3 text-lg text-inherit shadow-[0_1px_2px_rgba(0,0,0,0.1)] placeholder:text-[#aaa] focus:shadow-[0_0_0_8px_rgba(253,242,233,0.5)];
+      }
+
+      .footer-link {
+        @apply text-base text-[#767676] no-underline transition-all duration-300 hover:text-[#555] active:text-[#555];
+      }
+    }
+  </style>
+
+  <script type="module" src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule="" src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.js"></script>
+
+  <title>Omnifood &mdash; Never cook again!</title>
+</head>
+
+<body>
+  <!-- =====================================================
+       HEADER + NAV
+       Below lg (1024px): nav becomes a full-screen slide-in menu.
+       State is driven by data-open / data-stuck set in the script at the bottom.
+  ====================================================== -->
+  <header
+    data-header
+    data-open="false"
+    data-stuck="false"
+    class="group sticky top-0 z-50 flex h-20 items-center justify-between bg-tint px-6 transition-all duration-300 data-[stuck=true]:bg-white/95 data-[stuck=true]:shadow-[0_12px_32px_rgba(0,0,0,0.06)] md:h-24 md:px-12"
+  >
+    <a href="#" class="relative z-50">
+      <img class="logo h-[22px]" alt="Omnifood logo" src="img/omnifood-logo.png" />
+    </a>
+
+    <nav
+      data-nav
+      aria-label="Main"
+      class="invisible pointer-events-none fixed inset-0 z-40 flex translate-x-full items-center justify-center bg-white/95 opacity-0 transition-all duration-500 group-data-[open=true]:visible group-data-[open=true]:pointer-events-auto group-data-[open=true]:translate-x-0 group-data-[open=true]:opacity-100 lg:visible lg:pointer-events-auto lg:static lg:translate-x-0 lg:bg-transparent lg:opacity-100"
+    >
+      <ul class="flex list-none flex-col items-center gap-12 lg:flex-row lg:gap-10">
+        <li>
+          <a class="text-3xl font-medium text-[#333] no-underline transition-all duration-300 hover:text-primary-dark lg:text-lg" href="#how">How it works</a>
+        </li>
+        <li>
+          <a class="text-3xl font-medium text-[#333] no-underline transition-all duration-300 hover:text-primary-dark lg:text-lg" href="#meals">Meals</a>
+        </li>
+        <li>
+          <a class="text-3xl font-medium text-[#333] no-underline transition-all duration-300 hover:text-primary-dark lg:text-lg" href="#testimonials">Testimonials</a>
+        </li>
+        <li>
+          <a class="text-3xl font-medium text-[#333] no-underline transition-all duration-300 hover:text-primary-dark lg:text-lg" href="#pricing">Pricing</a>
+        </li>
+        <li>
+          <a
+            class="rounded-[9px] bg-primary px-6 py-3 text-3xl font-medium text-white no-underline transition-all duration-300 hover:bg-primary-dark hover:text-white lg:text-lg"
+            href="#cta"
+            >Try for free</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <button
+      data-nav-toggle
+      type="button"
+      aria-label="Toggle navigation"
+      aria-expanded="false"
+      class="relative z-50 cursor-pointer border-0 bg-transparent lg:hidden"
+    >
+      <ion-icon class="size-12 text-[#333] group-data-[open=true]:hidden" name="menu-outline"></ion-icon>
+      <ion-icon class="hidden size-12 text-[#333] group-data-[open=true]:block" name="close-outline"></ion-icon>
+    </button>
+  </header>
+
+  <main>
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+    <section data-hero class="bg-tint pt-8 pb-16 md:pt-12 md:pb-24">
+      <div class="mx-auto grid max-w-[1300px] grid-cols-1 items-center gap-12 px-6 text-center md:px-8 lg:grid-cols-2 lg:gap-24 lg:text-left">
+        <div>
+          <h1 class="heading-primary">
+            A healthy meal delivered to your door, every single day
+          </h1>
+          <p class="mb-12 text-lg leading-[1.6] sm:text-xl">
+            The smart 365-days-per-year food subscription that will make you
+            eat healthy again. Tailored to your personal tastes and
+            nutritional needs.
+          </p>
+
+          <div class="flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+            <a href="#cta" class="btn btn--full">Start eating well</a>
+            <a href="#how" class="btn btn--outline">Learn more &darr;</a>
+          </div>
+
+          <div class="mt-16 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:mt-20 lg:justify-start">
+            <div class="flex pr-4">
+              <img class="-mr-4 size-12 rounded-full border-[3px] border-tint" src="img/customers/customer-1.jpg" alt="Customer photo" />
+              <img class="-mr-4 size-12 rounded-full border-[3px] border-tint" src="img/customers/customer-2.jpg" alt="Customer photo" />
+              <img class="-mr-4 size-12 rounded-full border-[3px] border-tint" src="img/customers/customer-3.jpg" alt="Customer photo" />
+              <img class="-mr-4 size-12 rounded-full border-[3px] border-tint" src="img/customers/customer-4.jpg" alt="Customer photo" />
+              <img class="-mr-4 size-12 rounded-full border-[3px] border-tint" src="img/customers/customer-5.jpg" alt="Customer photo" />
+              <img class="size-12 rounded-full border-[3px] border-tint" src="img/customers/customer-6.jpg" alt="Customer photo" />
+            </div>
+            <p class="text-lg font-semibold">
+              <span class="font-bold text-primary-dark">250,000+</span> meals
+              delivered last year!
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <picture>
+            <source srcset="img/hero.webp" type="image/webp" />
+            <source srcset="img/hero-min.png" type="image/png" />
+            <img
+              src="img/hero-min.png"
+              class="mx-auto w-4/5 lg:w-full"
+              alt="Woman enjoying food, meals in storage container, and food bowls on a table"
+            />
+          </picture>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         FEATURED IN
+    ====================================================== -->
+    <section class="pt-12 pb-8">
+      <div class="mx-auto max-w-[1200px] px-6 md:px-8">
+        <h2 class="mb-6 text-center text-sm font-medium tracking-[0.75px] text-[#888] uppercase">
+          As featured in
+        </h2>
+        <div class="flex flex-wrap items-center justify-around gap-x-8 gap-y-6">
+          <img class="h-6 opacity-50 brightness-0 md:h-8" src="img/logos/techcrunch.png" alt="Techcrunch logo" />
+          <img class="h-6 opacity-50 brightness-0 md:h-8" src="img/logos/business-insider.png" alt="Business Insider logo" />
+          <img class="h-6 opacity-50 brightness-0 md:h-8" src="img/logos/the-new-york-times.png" alt="The New York Times logo" />
+          <img class="h-6 opacity-50 brightness-0 md:h-8" src="img/logos/forbes.png" alt="Forbes logo" />
+          <img class="h-6 opacity-50 brightness-0 md:h-8" src="img/logos/usa-today.png" alt="USA Today logo" />
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         HOW IT WORKS
+         Each step is its own row, so on mobile the text always
+         comes before the image (even in step 02, where the image is first in the DOM).
+    ====================================================== -->
+    <section class="py-16 md:py-24" id="how">
+      <div class="mx-auto max-w-[1200px] px-6 md:px-8">
+        <span class="subheading">How it works</span>
+        <h2 class="heading-secondary">
+          Your daily dose of health in 3 simple steps
+        </h2>
+      </div>
+
+      <div class="mx-auto flex max-w-[1200px] flex-col gap-y-16 px-6 md:gap-y-24 md:px-8">
+        <!-- STEP 01 -->
+        <div class="flex flex-col items-center gap-x-24 gap-y-8 md:grid md:grid-cols-2">
+          <div>
+            <p class="mb-3 text-[64px] font-semibold text-[#ddd] md:text-[86px]">01</p>
+            <h3 class="heading-tertiary">Tell us what you like (and what not)</h3>
+            <p class="text-lg leading-[1.8]">
+              Never again waste time thinking about what to eat! Omnifood AI
+              will create a 100% personalized weekly meal plan just for you. It
+              makes sure you get all the nutrients and vitamins you need, no
+              matter what diet you follow!
+            </p>
+          </div>
+          <div class="relative isolate flex w-full items-center justify-center before:absolute before:top-1/2 before:left-1/2 before:-z-10 before:aspect-square before:w-[60%] before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-tint after:absolute after:top-1/2 after:left-1/2 after:-z-10 after:aspect-square after:w-[45%] after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-tint-dark">
+            <img src="img/app/app-screen-1.png" class="w-[45%] md:w-[35%]" alt="iPhone app preferences selection screen" />
+          </div>
+        </div>
+
+        <!-- STEP 02 (image first on desktop, text first on mobile) -->
+        <div class="flex flex-col-reverse items-center gap-x-24 gap-y-8 md:grid md:grid-cols-2">
+          <div class="relative isolate flex w-full items-center justify-center before:absolute before:top-1/2 before:left-1/2 before:-z-10 before:aspect-square before:w-[60%] before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-tint after:absolute after:top-1/2 after:left-1/2 after:-z-10 after:aspect-square after:w-[45%] after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-tint-dark">
+            <img src="img/app/app-screen-2.png" class="w-[45%] md:w-[35%]" alt="iPhone app meal approving plan screen" />
+          </div>
+          <div class="self-start md:self-center">
+            <p class="mb-3 text-[64px] font-semibold text-[#ddd] md:text-[86px]">02</p>
+            <h3 class="heading-tertiary">Approve your weekly meal plan</h3>
+            <p class="text-lg leading-[1.8]">
+              Once per week, approve the meal plan generated for you by
+              Omnifood AI. You can change ingredients, swap entire meals, or
+              even add your own recipes.
+            </p>
+          </div>
+        </div>
+
+        <!-- STEP 03 -->
+        <div class="flex flex-col items-center gap-x-24 gap-y-8 md:grid md:grid-cols-2">
+          <div>
+            <p class="mb-3 text-[64px] font-semibold text-[#ddd] md:text-[86px]">03</p>
+            <h3 class="heading-tertiary">Receive meals at convenient time</h3>
+            <p class="text-lg leading-[1.8]">
+              Best chefs in town will cook your selected meal every day, and we
+              will deliver it to your door whenever works best for you. You can
+              change delivery schedule and address daily!
+            </p>
+          </div>
+          <div class="relative isolate flex w-full items-center justify-center before:absolute before:top-1/2 before:left-1/2 before:-z-10 before:aspect-square before:w-[60%] before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-tint after:absolute after:top-1/2 after:left-1/2 after:-z-10 after:aspect-square after:w-[45%] after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-tint-dark">
+            <img src="img/app/app-screen-3.png" class="w-[45%] md:w-[35%]" alt="iPhone app delivery screen" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         MEALS (this section was missing from your file)
+    ====================================================== -->
+    <section class="py-16 md:py-24" id="meals">
+      <div class="mx-auto max-w-[1200px] px-6 md:px-8">
+        <span class="subheading">Meals</span>
+        <h2 class="heading-secondary">Omnifood AI chooses from 5,000+ recipes</h2>
+      </div>
+
+      <div class="mx-auto mb-12 grid max-w-[1200px] grid-cols-1 gap-x-12 gap-y-12 px-6 md:grid-cols-2 md:px-8 lg:grid-cols-3">
+        <!-- Meal 1 -->
+        <div class="overflow-hidden rounded-[11px] bg-white shadow-[0_24px_48px_rgba(0,0,0,0.075)] transition-all duration-300 hover:-translate-y-3">
+          <img src="img/meals/meal-1.jpg" class="w-full" alt="Japanese Gyozas" />
+          <div class="px-8 pt-6 pb-8">
+            <div class="mb-3 flex gap-1">
+              <span class="tag bg-[#51cf66]">Vegetarian</span>
+            </div>
+            <p class="mb-8 text-2xl font-medium text-[#333]">Japanese Gyozas</p>
+            <ul class="flex list-none flex-col gap-4">
+              <li class="flex items-center gap-4 text-lg">
+                <ion-icon class="size-6 text-primary" name="flame-outline"></ion-icon>
+                <span><strong>650</strong> calories</span>
+              </li>
+              <li class="flex items-center gap-4 text-lg">
+                <ion-icon class="size-6 text-primary" name="restaurant-outline"></ion-icon>
+                <span>NutriScore &reg; <strong>74</strong></span>
+              </li>
+              <li class="flex items-center gap-4 text-lg">
+                <ion-icon class="size-6 text-primary" name="star-outline"></ion-icon>
+                <span><strong>4.9</strong> rating (537)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Meal 2 -->
+        <div class="overflow-hidden rounded-[11px] bg-white shadow-[0_24px_48px_rgba(0,0,0,0.075)] transition-all duration-300 hover:-translate-y-3">
+          <img src="img/meals/meal-2.jpg" class="w-full" alt="Avocado Salad" />
+          <div class="px-8 pt-6 pb-8">
+            <div class="mb-3 flex gap-1">
+              <span class="tag bg-[#94d82d]">Vegan</span>
+              <span class="tag bg-[#ffd43b]">Paleo</span>
+            </div>
+            <p class="mb-8 text-2xl font-medium text-[#333]">Avocado Salad</p>
+            <ul class="flex list-none flex-col gap-4">
+              <li class="flex items-center gap-4 text-lg">
+                <ion-icon class="size-6 text-primary" name="flame-outline"></ion-icon>
+                <span><strong>400</strong> calories</span>
+              </li>
+              <li class="flex items-center gap-4 text-lg">
+                <ion-icon class="size-6 text-primary" name="restaurant-outline"></ion-icon>
+                <span>NutriScore &reg; <strong>92</strong></span>
+              </li>
+              <li class="flex items-center gap-4 text-lg">
+                <ion-icon class="size-6 text-primary" name="star-outline"></ion-icon>
+                <span><strong>4.8</strong> rating (441)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Diets -->
+        <div class="md:col-span-2 lg:col-span-1">
+          <h3 class="heading-tertiary">Works with any diet:</h3>
+          <ul class="list grid grid-cols-2 gap-x-4 lg:grid-cols-1">
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Vegetarian</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Vegan</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Pescatarian</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Gluten-free</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Lactose-free</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Keto</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Paleo</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Low FODMAP</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Kid-friendly</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="text-center text-lg">
+        <a href="#" class="link">See all recipes &rarr;</a>
+      </p>
+    </section>
+
+    <!-- =====================================================
+         TESTIMONIALS
+    ====================================================== -->
+    <section class="grid grid-cols-1 items-center bg-tint lg:grid-cols-[55fr_45fr]" id="testimonials">
+      <div class="px-6 py-16 md:px-12 md:py-20 lg:p-24">
+        <span class="subheading">Testimonials</span>
+        <h2 class="heading-secondary">Once you try it, you can't go back</h2>
+
+        <div class="grid grid-cols-1 gap-x-20 gap-y-12 md:grid-cols-2">
+          <figure>
+            <img class="mb-3 w-16 rounded-full" alt="Photo of customer Dave Bryson" src="img/customers/dave.jpg" />
+            <blockquote class="mb-4 text-lg leading-[1.8]">
+              Inexpensive, healthy and great-tasting meals, without even
+              having to order manually! It feels truly magical.
+            </blockquote>
+            <p class="text-base text-[#6f6f6f]">&mdash; Dave Bryson</p>
+          </figure>
+
+          <figure>
+            <img class="mb-3 w-16 rounded-full" alt="Photo of customer Ben Hadley" src="img/customers/ben.jpg" />
+            <blockquote class="mb-4 text-lg leading-[1.8]">
+              The AI algorithm is crazy good, it chooses the right meals for
+              me every time. It's amazing not to worry about food anymore!
+            </blockquote>
+            <p class="text-base text-[#6f6f6f]">&mdash; Ben Hadley</p>
+          </figure>
+
+          <figure>
+            <img class="mb-3 w-16 rounded-full" alt="Photo of customer Steve Miller" src="img/customers/steve.jpg" />
+            <blockquote class="mb-4 text-lg leading-[1.8]">
+              Omnifood is a life saver! I just started a company, so there's
+              no time for cooking. I couldn't live without my daily meals now!
+            </blockquote>
+            <p class="text-base text-[#6f6f6f]">&mdash; Steve Miller</p>
+          </figure>
+
+          <figure>
+            <img class="mb-3 w-16 rounded-full" alt="Photo of customer Hannah Smith" src="img/customers/hannah.jpg" />
+            <blockquote class="mb-4 text-lg leading-[1.8]">
+              I got Omnifood for the whole family, and it frees up so much
+              time! Plus, everything is organic and vegan and without plastic.
+            </blockquote>
+            <p class="text-base text-[#6f6f6f]">&mdash; Hannah Smith</p>
+          </figure>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 p-4 sm:grid-cols-4 lg:grid-cols-3">
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-1.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-2.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-3.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-4.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-5.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-6.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-7.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-8.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-9.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-10.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-11.jpg" alt="Photo of beautifully arranged food" /></figure>
+        <figure class="overflow-hidden"><img class="block w-full transition-transform duration-300 hover:scale-110" src="img/gallery/gallery-12.jpg" alt="Photo of beautifully arranged food" /></figure>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         PRICING
+    ====================================================== -->
+    <section class="py-16 md:py-24" id="pricing">
+      <div class="mx-auto max-w-[1200px] px-6 md:px-8">
+        <span class="subheading">Pricing</span>
+        <h2 class="heading-secondary">Eating well without breaking the bank</h2>
+      </div>
+
+      <div class="mx-auto mb-12 grid max-w-[1200px] grid-cols-1 gap-x-16 gap-y-12 px-6 md:px-8 lg:grid-cols-2 lg:gap-y-24">
+        <!-- Starter plan -->
+        <div class="w-full max-w-lg justify-self-center rounded-[11px] border-2 border-tint p-6 sm:p-[46px] lg:w-3/4 lg:max-w-none lg:justify-self-end">
+          <header class="mb-12 text-center">
+            <p class="mb-8 text-xl font-semibold text-primary-dark uppercase">Starter</p>
+            <p class="mb-4 text-[44px] font-semibold text-[#333] sm:text-[62px]">
+              <span class="mr-2 text-3xl font-medium">₹</span>399
+            </p>
+            <p class="text-base leading-[1.6] text-[#6f6f6f]">
+              per month. That's just ₹13 per meal!
+            </p>
+          </header>
+          <ul class="list">
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>1 meal per day</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Order from 11am to 9pm</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Delivery is free</span></li>
+            <!-- Bug fix: this item had only the X icon and no text -->
+            <li class="list-item text-[#6f6f6f]"><ion-icon class="list-icon" name="close-outline"></ion-icon><span>Get access to latest recipes</span></li>
+          </ul>
+          <div class="mt-12 text-center">
+            <a href="#" class="btn btn--full">Start eating well</a>
+          </div>
+        </div>
+
+        <!-- Complete plan ("Best value" ribbon via after:) -->
+        <div
+          class="relative w-full max-w-lg justify-self-center overflow-hidden rounded-[11px] bg-tint p-6 sm:p-12 lg:w-3/4 lg:max-w-none lg:justify-self-start after:absolute after:top-[6%] after:right-[-18%] after:rotate-45 after:bg-[#ffd43b] after:px-32 after:py-2 after:text-sm after:font-bold after:text-[#333] after:uppercase after:content-['Best_value']"
+        >
+          <header class="mb-12 text-center">
+            <p class="mb-8 text-xl font-semibold text-primary-dark uppercase">Complete</p>
+            <p class="mb-4 text-[44px] font-semibold text-[#333] sm:text-[62px]">
+              <span class="mr-2 text-3xl font-medium">₹</span>649
+            </p>
+            <p class="text-base leading-[1.6] text-[#6f6f6f]">
+              per month. That's just ₹11 per meal!
+            </p>
+          </header>
+          <ul class="list">
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span><strong>2 meals</strong> per day</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Order <strong>24/7</strong></span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Delivery is free</span></li>
+            <li class="list-item"><ion-icon class="list-icon" name="checkmark-outline"></ion-icon><span>Get access to latest recipes</span></li>
+          </ul>
+          <div class="mt-12 text-center">
+            <a href="#" class="btn btn--full">Start eating well</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto mb-12 max-w-[1200px] px-6 md:mb-24 md:px-8">
+        <aside class="text-center text-base leading-[1.6]">
+          Prices include all applicable taxes. You can cancel at any time. Both
+          plans include the following:
+        </aside>
+      </div>
+
+      <div class="mx-auto grid max-w-[1200px] grid-cols-1 gap-x-16 gap-y-12 px-6 sm:grid-cols-2 md:px-8 lg:grid-cols-4">
+        <div>
+          <ion-icon class="mb-8 h-8 w-8 rounded-full bg-tint p-4 text-primary" name="infinite-outline"></ion-icon>
+          <p class="mb-4 text-2xl font-bold text-[#333]">Never cook again!</p>
+          <p class="text-lg leading-[1.8]">Our subscriptions cover 365 days per year, even including major holidays.</p>
+        </div>
+        <div>
+          <ion-icon class="mb-8 h-8 w-8 rounded-full bg-tint p-4 text-primary" name="nutrition-outline"></ion-icon>
+          <p class="mb-4 text-2xl font-bold text-[#333]">Local and organic</p>
+          <p class="text-lg leading-[1.8]">Our cooks only use local, fresh, and organic products to prepare your meals.</p>
+        </div>
+        <div>
+          <ion-icon class="mb-8 h-8 w-8 rounded-full bg-tint p-4 text-primary" name="leaf-outline"></ion-icon>
+          <p class="mb-4 text-2xl font-bold text-[#333]">No waste</p>
+          <p class="text-lg leading-[1.8]">All our partners only use reusable containers to package all your meals.</p>
+        </div>
+        <div>
+          <ion-icon class="mb-8 h-8 w-8 rounded-full bg-tint p-4 text-primary" name="pause-outline"></ion-icon>
+          <p class="mb-4 text-2xl font-bold text-[#333]">Pause anytime</p>
+          <p class="text-lg leading-[1.8]">Going on vacation? Just pause your subscription, and we refund unused days.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         CTA
+    ====================================================== -->
+    <section class="pt-12 pb-16 md:pb-32" id="cta">
+      <div class="mx-auto max-w-[1200px] px-6 md:px-8">
+        <div class="grid grid-cols-1 overflow-hidden rounded-[11px] bg-linear-to-br from-primary-light to-primary shadow-[0_24px_48px_rgba(0,0,0,0.15)] lg:grid-cols-[2fr_1fr]">
+          <div class="p-6 sm:px-16 sm:pt-12 sm:pb-16 text-shade">
+            <h2 class="heading-secondary mb-8 text-inherit md:mb-8">
+              Get your first meal for free!
+            </h2>
+            <p class="mb-12 text-lg leading-[1.8]">
+              Healthy, tasty and hassle-free meals are waiting for you. Start
+              eating well today. You can cancel or pause anytime. And the first
+              meal is on us!
+            </p>
+
+            <form class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2" name="sign-up" netlify>
+              <div>
+                <label for="full-name" class="mb-3 block text-base font-medium">Full Name</label>
+                <input id="full-name" type="text" placeholder="Metta Surendhar" name="full-name" required class="field" />
+              </div>
+
+              <div>
+                <label for="email" class="mb-3 block text-base font-medium">Email address</label>
+                <input id="email" type="email" placeholder="name@example.com" name="email" required class="field" />
+              </div>
+
+              <div>
+                <label for="select-where" class="mb-3 block text-base font-medium">Where did you hear from us?</label>
+                <select id="select-where" name="select-where" required class="field">
+                  <option value="">Please choose one option:</option>
+                  <option value="friends">Friends and family</option>
+                  <option value="youtube">YouTube video</option>
+                  <option value="podcast">Podcast</option>
+                  <option value="ad">Facebook ad</option>
+                  <option value="others">Others</option>
+                </select>
+              </div>
+
+              <button class="btn btn--form">Sign up now</button>
+            </form>
+          </div>
+
+          <!-- On mobile the photo sits on top as a banner -->
+          <div
+            class="order-first h-64 bg-[linear-gradient(to_right_bottom,rgba(235,151,78,0.35),rgba(230,125,34,0.35)),url('img/eating.jpg')] bg-cover bg-center lg:order-none lg:h-auto"
+            role="img"
+            aria-label="Woman enjoying food"
+          ></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       FOOTER
+  ====================================================== -->
+  <footer class="border-t border-[#eee] py-16 md:py-32">
+    <div class="mx-auto grid max-w-[1200px] grid-cols-2 gap-x-8 gap-y-12 px-6 md:grid-cols-6 md:px-8 lg:grid-cols-[1.5fr_1.5fr_1fr_1fr_1fr] lg:gap-x-16 lg:gap-y-24">
+      <div class="col-span-2 flex flex-col md:col-span-3 lg:col-span-1">
+        <a href="#" class="mb-8 block">
+          <img class="logo h-[22px]" alt="Omnifood logo" src="img/omnifood-logo.png" />
+        </a>
+
+        <ul class="mb-8 flex list-none gap-6 lg:mb-0">
+          <li><a class="footer-link" href="#" aria-label="Instagram"><ion-icon class="size-6" name="logo-instagram"></ion-icon></a></li>
+          <li><a class="footer-link" href="#" aria-label="Facebook"><ion-icon class="size-6" name="logo-facebook"></ion-icon></a></li>
+          <li><a class="footer-link" href="#" aria-label="Twitter"><ion-icon class="size-6" name="logo-twitter"></ion-icon></a></li>
+        </ul>
+
+        <p class="text-sm leading-[1.6] text-[#767676] lg:mt-auto">
+          Made with ❤️ by METTA SURENDHAR
+        </p>
+      </div>
+
+      <div class="col-span-2 md:col-span-3 lg:col-span-1">
+        <p class="mb-10 text-lg font-medium">Contact us</p>
+        <address class="text-base not-italic leading-[1.6]">
+          <p class="mb-6">No 623, Ambedkar St., 4th Floor, Chennai, TamilNadu</p>
+          <p>
+            <a class="footer-link" href="tel:+915252535353">+91 52525 35353</a><br />
+            <a class="footer-link" href="mailto:omnifood@gmail.com">omnifood@gmail.com</a>
+          </p>
+        </address>
+      </div>
+
+      <nav class="md:col-span-2 lg:col-span-1" aria-label="Account">
+        <!-- Bug fix: was "font-lg", which isn't a Tailwind class -->
+        <p class="mb-10 text-lg font-medium">Account</p>
+        <ul class="flex list-none flex-col gap-6">
+          <li><a class="footer-link" href="#">Create account</a></li>
+          <li><a class="footer-link" href="#">Sign in</a></li>
+          <li><a class="footer-link" href="#">iOS app</a></li>
+          <li><a class="footer-link" href="#">Android app</a></li>
+        </ul>
+      </nav>
+
+      <nav class="md:col-span-2 lg:col-span-1" aria-label="Company">
+        <p class="mb-10 text-lg font-medium">Company</p>
+        <ul class="flex list-none flex-col gap-6">
+          <li><a class="footer-link" href="#">About Omnifood</a></li>
+          <li><a class="footer-link" href="#">For Business</a></li>
+          <li><a class="footer-link" href="#">Cooking partners</a></li>
+          <li><a class="footer-link" href="#">Careers</a></li>
+        </ul>
+      </nav>
+
+      <nav class="md:col-span-2 lg:col-span-1" aria-label="Resources">
+        <p class="mb-10 text-lg font-medium">Resources</p>
+        <ul class="flex list-none flex-col gap-6">
+          <li><a class="footer-link" href="#">Recipe directory</a></li>
+          <li><a class="footer-link" href="#">Help center</a></li>
+          <li><a class="footer-link" href="#">Privacy &amp; terms</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Mobile nav toggle + sticky header state (replaces js/script.js) -->
+  <script>
+    (() => {
+      const header = document.querySelector("[data-header]");
+      const toggle = document.querySelector("[data-nav-toggle]");
+      const hero = document.querySelector("[data-hero]");
+
+      const setOpen = (open) => {
+        header.dataset.open = String(open);
+        toggle.setAttribute("aria-expanded", String(open));
+        document.body.style.overflow = open ? "hidden" : "";
+      };
+
+      toggle.addEventListener("click", () =>
+        setOpen(header.dataset.open !== "true")
+      );
+
+      // Close the menu after tapping a link, or when resizing up to desktop
+      document
+        .querySelectorAll("[data-nav] a")
+        .forEach((a) => a.addEventListener("click", () => setOpen(false)));
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1024) setOpen(false);
+      });
+
+      // Header gets a white background + shadow once the hero scrolls out of view
+      new IntersectionObserver(
+        ([entry]) => {
+          header.dataset.stuck = String(!entry.isIntersecting);
+        },
+        { rootMargin: "-80px 0px 0px 0px" }
+      ).observe(hero);
+    })();
+  </script>
+
+  <!-- Block right-click, F12, and the common inspect / view-source shortcuts -->
+  <script>
+    (() => {
+      // Right-click menu
+      document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+      document.addEventListener("keydown", (e) => {
+        const key = e.key.toLowerCase();
+        const ctrlOrCmd = e.ctrlKey || e.metaKey;
+
+        const blocked =
+          e.key === "F12" || // DevTools
+          (ctrlOrCmd && e.shiftKey && ["i", "j", "c", "k"].includes(key)) || // Win/Linux DevTools, console, element picker
+          (e.metaKey && e.altKey && ["i", "j", "c", "u"].includes(key)) || // Mac DevTools, console, element picker, view source
+          (ctrlOrCmd && key === "u") || // View source
+          (ctrlOrCmd && key === "s"); // Save page
+
+        if (blocked) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+
+      // Stop dragging images out of the page
+      document.addEventListener("dragstart", (e) => {
+        if (e.target.tagName === "IMG") e.preventDefault();
+      });
+    })();
+  </script>
+</body>
+</html>
